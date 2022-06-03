@@ -1,12 +1,19 @@
 const readline = require('readline');
+const configLoader = require('./config/config-loader')
 const { handleReceivedRecords } = require('./listen-sats')
 const { commandHandler } = require('./handle-command')
 
-const handler = (records) => {
-    console.log(records)
+const config = configLoader.getConfig()
+
+const listenHandler = (records) => {
+    for (const key in records) {
+        if (Number(key) == Number(config.data_struct.tlv_key)) {
+            console.log(records[key].toString('utf-8'))
+        }
+    }
 }
 
-handleReceivedRecords(handler)
+handleReceivedRecords(listenHandler)
 
 const rl = readline.createInterface({
     input: process.stdin,

@@ -1,3 +1,5 @@
+const { sendDataToAddress } = require('./write-sats')
+
 let handlers = {}
 
 const commandHandler = (line) => {
@@ -8,12 +10,11 @@ const commandHandler = (line) => {
 }
 
 handlers['speak'] = (args) => {
-    if (args.length < 2) {
+    if (args.length < 3) {
         console.log('Too few arguments')
         return
     }
-    // TODO use
-    console.log('sending to', args[1])
+    sendDataToAddress(args[1], args[2])
 }
 
 module.exports = {
