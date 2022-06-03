@@ -1,0 +1,10 @@
+lightning:
+  url: "replaceme"
+  macaroon_path: "replaceme"
+  tls_path: "replaceme"
+
+data_sig:
+  tlv_key: 0 # replace with desired TLV key to insert DataSig structure into
+
+data_struct:
+  tlv_key: 0 # replace with desired TLV key to insert DataStruct structure into
