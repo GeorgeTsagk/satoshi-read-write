@@ -1,0 +1,8 @@
+package datasig;
+syntax = "proto3";
+
+message DataSig {
+    uint32 version          = 1;
+    bytes sig               = 2;
+    optional bytes senderPK = 3;
+}
