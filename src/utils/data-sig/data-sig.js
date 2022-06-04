@@ -15,7 +15,7 @@ const generateDataSig = (version, data, destinationAddress, senderAddress) => {
         let request = {
             msg: destDataBuffer,
             double_hash: false,
-            compact_sig: true,
+            compact_sig: false,
             key_loc: {
                 key_family: 6,
                 key_index: 0
