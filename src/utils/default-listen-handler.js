@@ -1,5 +1,5 @@
 const configLoader = require('../config/config-loader')
-const { decodeDataSig, encodeDataSig } = require('./data-sig/data-sig')
+const { verifyDataSig } = require('./data-sig/data-sig')
 const { signer } = require('../lnd-rpc/signer')
 const { lightning } = require('../lnd-rpc/lightning')
 const config = configLoader.getConfig()
@@ -16,23 +16,10 @@ const defaultListenHandler = async (records) => {
         }
     }
 
-    const dataSig = await decodeDataSig(dataSigBuf)
-    console.log('sig: ', dataSig)
-
-    let request = {
-        msg: dataStructBuf,
-        signature: dataSig.sig,
-        pubkey: dataSig.senderPK
-    };
-
-    lightning.verifyMessage(request, function (err, response) {
-        console.log(err)
-        console.log(response);
-    });
-    // signer.verifyMessage(request, function (err, response) {
-    //     console.log(err)
-    //     console.log(response);
-    // });
+    const valid = await verifyDataSig(dataSigBuf, dataStructBuf)
+    if (!valid) return
+    console.log("DataSig Verified Data Received: ")
+    console.log(config.data_struct.tlv_key, ':', dataStructBuf)
 
 }
 

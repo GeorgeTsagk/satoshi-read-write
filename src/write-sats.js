@@ -1,8 +1,8 @@
 const { router } = require('./lnd-rpc/router')
-const { lightning } = require('./lnd-rpc/lightning');
 const { randomBytes, createHash } = require('crypto')
 const configLoader = require('./config/config-loader')
 
+const { getMyAddress } = require('./utils/generic')
 const { generateDataSig, encodeDataSig } = require('./utils/data-sig/data-sig')
 
 const config = configLoader.getConfig()
@@ -10,19 +10,6 @@ const config = configLoader.getConfig()
 const PREIMAGE_TLV_KEY = 5482373484
 
 let destinationAddress = ""
-let myAddress = ""
-
-const getMyAddress = () => {
-    return new Promise(function(resolve, reject) {
-        if (myAddress != "") {
-            resolve(myAddress)
-        }
-        lightning.getInfo({}, function (err, response) {
-            if(err) reject(err)
-            if(response) resolve(response.identity_pubkey)
-        });
-    })
-}
 
 const setDestinationAddress = (addr) => {
     destinationAddress = addr
