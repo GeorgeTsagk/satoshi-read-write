@@ -7,7 +7,7 @@ const { generateDataSig, encodeDataSig } = require('./utils/data-sig/data-sig')
 
 const config = configLoader.getConfig()
 
-const sendPayment = (address, data, dataSigBuffer) => {
+const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     const preimage = randomBytes(32)
     const hash = createHash('sha256').update(preimage).digest()
 
@@ -18,9 +18,11 @@ const sendPayment = (address, data, dataSigBuffer) => {
 
     let records = {}
     records[5482373484] = preimage
-    // records[dataKey] = Buffer.from(data, 'utf-8')
-    records[dataKey] = data
-    records[sigKey] = dataSigBuffer
+    records[dataKey] = dataBuffer
+    if (dataSigBuffer !== undefined
+        && Buffer.isBuffer(dataSigBuffer)) {
+        records[sigKey] = dataSigBuffer
+    }
 
     let request = {
         dest: destBuff,
@@ -49,12 +51,12 @@ const sendPayment = (address, data, dataSigBuffer) => {
 
 const sendDataToAddress = (address, data) => {
     generateDataSig(1, data, address, undefined)
-    .then((res) => encodeDataSig(res))
-    .then((sigBuf) => sendPayment(
-        address,
-        data,
-        sigBuf
-    ))
+        .then((res) => encodeDataSig(res))
+        .then((sigBuf) => sendPayment(
+            address,
+            data,
+            sigBuf
+        ))
 }
 
 module.exports = {
