@@ -19,6 +19,7 @@
   "homepage": "https://github.com/GeorgeTsagk/satoshi-read-write#readme",
   "dependencies": {
     "@grpc/grpc-js": "^1.6.7",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "protobufjs": "^6.11.3"
   }
 }
