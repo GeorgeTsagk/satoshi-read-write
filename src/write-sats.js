@@ -10,6 +10,19 @@ const config = configLoader.getConfig()
 const PREIMAGE_TLV_KEY = 5482373484
 
 let destinationAddress = ""
+let myAddress = ""
+
+const getMyAddress = () => {
+    return new Promise(function(resolve, reject) {
+        if (myAddress != "") {
+            resolve(myAddress)
+        }
+        lightning.getInfo({}, function (err, response) {
+            if(err) reject(err)
+            if(response) resolve(response.identity_pubkey)
+        });
+    })
+}
 
 const setDestinationAddress = (addr) => {
     destinationAddress = addr
@@ -48,7 +61,7 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     let call = router.sendPaymentV2(request);
     call.on('data', function (response) {
         // A response was received from the server.
-        if(response.status === 'SUCCEEDED') {
+        if (response.status === 'SUCCEEDED') {
             console.log("Fragment sent for", response.value_sat, "sat(s)");
             console.log("\tDataSig sent over TLV:\t\t", sigKey)
             console.log("\tDataStruct sent over TLV:\t", dataKey)
@@ -65,8 +78,9 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     });
 }
 
-const sendDataToAddress = (address, data) => {
-    generateDataSig(1, data, address, undefined)
+const sendDataToAddress = async (address, data) => {
+    myAddress = await getMyAddress()
+    generateDataSig(1, data, address, myAddress)
         .then((res) => encodeDataSig(res))
         .then((sigBuf) => sendPayment(
             address,

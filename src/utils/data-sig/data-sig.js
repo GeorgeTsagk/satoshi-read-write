@@ -32,7 +32,7 @@ const generateDataSig = (version, data, destinationAddress, senderAddress) => {
                 }
                 if (senderAddress !== undefined
                     && typeof senderAddress == 'string') {
-                    dataSig['senderPK'] = senderAddress
+                    dataSig['senderPK'] = Buffer.from(senderAddress, 'hex')
                 }
                 resolve(dataSig)
             }
