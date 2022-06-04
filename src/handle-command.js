@@ -21,7 +21,6 @@ handlers['set'] = (args) => {
         return
     }
     setDestinationAddress(args[1])
-
 }
 
 handlers['speak'] = (args) => {
@@ -39,30 +38,7 @@ handlers['speak'] = (args) => {
                 })
         }
     )
-
-
-    // sendDataToAddress(args[1], Buffer.from(args[2], 'utf-8'))
 }
-
-handlers['struct'] = (args) => {
-    console.log(dataToDataStructArray(
-        randomBytes(32)
-    ))
-    // encodeDataStruct(
-    //     {
-    //         version: 1,
-    //         payload: randomBytes(32),
-    //         fragment: {
-    //             fragmentationId: 42,
-    //             totalSize: 32,
-    //             offset: 0
-    //         }
-    //     }
-    // ).then((res) => decodeDataStruct(res))
-    // .then((ob) => console.log(ob))
-
-}
-
 
 module.exports = {
     commandHandler
