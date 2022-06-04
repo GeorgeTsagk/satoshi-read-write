@@ -7,6 +7,18 @@ const { generateDataSig, encodeDataSig } = require('./utils/data-sig/data-sig')
 
 const config = configLoader.getConfig()
 
+const PREIMAGE_TLV_KEY = 5482373484
+
+let destinationAddress = ""
+
+const setDestinationAddress = (addr) => {
+    destinationAddress = addr
+}
+
+const getDestinationAddress = () => {
+    return destinationAddress
+}
+
 const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     const preimage = randomBytes(32)
     const hash = createHash('sha256').update(preimage).digest()
@@ -17,7 +29,7 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     const sigKey = Number(config.data_sig.tlv_key)
 
     let records = {}
-    records[5482373484] = preimage
+    records[PREIMAGE_TLV_KEY] = preimage
     records[dataKey] = dataBuffer
     if (dataSigBuffer !== undefined
         && Buffer.isBuffer(dataSigBuffer)) {
@@ -36,7 +48,11 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     let call = router.sendPaymentV2(request);
     call.on('data', function (response) {
         // A response was received from the server.
-        console.log(response);
+        if(response.status === 'SUCCEEDED') {
+            console.log("Fragment sent for", response.value_sat, "sat(s)");
+            console.log("\tDataSig sent over TLV:\t\t", sigKey)
+            console.log("\tDataStruct sent over TLV:\t", dataKey)
+        }
     });
     call.on('error', function (err) {
         console.error(err)
@@ -60,5 +76,7 @@ const sendDataToAddress = (address, data) => {
 }
 
 module.exports = {
-    sendDataToAddress
+    sendDataToAddress,
+    setDestinationAddress,
+    getDestinationAddress
 }
