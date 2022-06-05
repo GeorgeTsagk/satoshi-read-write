@@ -1,4 +1,5 @@
 const { signer } = require('../../lnd-rpc/signer')
+const { getMyAddress } = require('../../utils/generic')
 var protobuf = require("protobufjs")
 
 const generateDataSig = (version, data, destinationAddress, senderAddress) => {
@@ -15,7 +16,7 @@ const generateDataSig = (version, data, destinationAddress, senderAddress) => {
         let request = {
             msg: destDataBuffer,
             double_hash: false,
-            compact_sig: true,
+            compact_sig: false,
             key_loc: {
                 key_family: 6,
                 key_index: 0
@@ -32,7 +33,7 @@ const generateDataSig = (version, data, destinationAddress, senderAddress) => {
                 }
                 if (senderAddress !== undefined
                     && typeof senderAddress == 'string') {
-                    dataSig['senderPK'] = senderAddress
+                    dataSig['senderPK'] = Buffer.from(senderAddress, 'hex')
                 }
                 resolve(dataSig)
             }
@@ -81,9 +82,32 @@ const decodeDataSig = (dataSigBuffer) => {
     })
 }
 
+const verifyDataSig = (dataSigBuf, dataBuf) => {
+    return new Promise(async function (resolve, reject) {
+        const dataSig = await decodeDataSig(dataSigBuf)
+
+        const myAddr = await getMyAddress()
+        const myAddrBuf = Buffer.from(myAddr, 'hex')
+
+        const destDataBuf = Buffer.concat([myAddrBuf, dataBuf])
+
+        let request = {
+            msg: destDataBuf,
+            signature: dataSig.sig,
+            pubkey: dataSig.senderPK
+        };
+
+        signer.verifyMessage(request, function (err, response) {
+            if(err) reject(err)
+            if(response) resolve(response.valid)
+        });
+    })
+}
+
 
 module.exports = {
     encodeDataSig,
     decodeDataSig,
-    generateDataSig
+    generateDataSig,
+    verifyDataSig
 }

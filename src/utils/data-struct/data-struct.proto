@@ -1,0 +1,14 @@
+package datastruct;
+syntax = "proto3";
+
+message DataStruct {
+    uint32 version = 1;
+    bytes payload = 2;
+    FragmentInfo fragment = 3;
+}
+
+message FragmentInfo {
+    uint32 fragmentation_id = 1;
+    uint32 total_size = 2;
+    uint32 offset = 3;
+}

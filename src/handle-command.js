@@ -1,6 +1,10 @@
 const { randomBytes } = require('crypto')
-const { sendDataToAddress } = require('./write-sats')
+const {
+    sendDataToAddress,
+    setDestinationAddress,
+    getDestinationAddress } = require('./write-sats')
 const { encodeDataSig, decodeDataSig } = require('./utils/data-sig/data-sig')
+const { encodeDataStruct, decodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
 
 let handlers = {}
 
@@ -11,24 +15,30 @@ const commandHandler = (line) => {
         handlers[args[0]](args)
 }
 
-handlers['speak'] = (args) => {
-    if (args.length < 3) {
-        console.log('Too few arguments')
+handlers['set'] = (args) => {
+    if (args.length < 2) {
+        console.log('Specify address')
         return
     }
-    sendDataToAddress(args[1], Buffer.from(args[2], 'utf-8'))
+    setDestinationAddress(args[1])
 }
 
-handlers['sig'] = (args) => {
-    encodeDataSig({
-        version: 1,
-        sig: randomBytes(32)
-    })
-    .then((res) => decodeDataSig(res))
-    .then((ob) => console.log(ob))
+handlers['speak'] = (args) => {
+    if (args.length < 2) {
+        console.log('Specify data')
+        return
+    }
+    const dataStructs = dataToDataStructArray(Buffer.from(args[1], 'utf-8'))
 
+    dataStructs.forEach(
+        (dataStruct) => {
+            encodeDataStruct(dataStruct)
+                .then((buf) => {
+                    sendDataToAddress(getDestinationAddress(), buf)
+                })
+        }
+    )
 }
-
 
 module.exports = {
     commandHandler
