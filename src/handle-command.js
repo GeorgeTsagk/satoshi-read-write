@@ -1,4 +1,4 @@
-const { randomBytes } = require('crypto')
+const fs = require('fs')
 const {
     sendDataToAddress,
     setDestinationAddress,
@@ -21,6 +21,28 @@ handlers['set'] = (args) => {
         return
     }
     setDestinationAddress(args[1])
+}
+
+handlers['send'] = (args) => {
+    if (args.length < 2) {
+        console.log('Specify filename')
+        return
+    }
+    try {
+        const buff = fs.readFileSync(args[1])
+        const dataStructs = dataToDataStructArray(buff)
+
+        dataStructs.forEach(
+            (dataStruct) => {
+                encodeDataStruct(dataStruct)
+                    .then((buf) => {
+                        sendDataToAddress(getDestinationAddress(), buf)
+                    })
+            }
+        )
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 handlers['speak'] = (args) => {
