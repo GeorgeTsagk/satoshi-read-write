@@ -2,6 +2,7 @@ const configLoader = require('../config/config-loader')
 const { verifyDataSig } = require('./data-sig/data-sig')
 const { signer } = require('../lnd-rpc/signer')
 const { lightning } = require('../lnd-rpc/lightning')
+const { receiveDataStructBuffer } = require('./data-struct/assembly-buffer')
 const config = configLoader.getConfig()
 
 const defaultListenHandler = async (records) => {
@@ -18,8 +19,7 @@ const defaultListenHandler = async (records) => {
 
     const valid = await verifyDataSig(dataSigBuf, dataStructBuf)
     if (!valid) return
-    console.log("DataSig Verified Data Received: ")
-    console.log(config.data_struct.tlv_key, ':', dataStructBuf)
+    receiveDataStructBuffer(dataStructBuf)
 
 }
 
