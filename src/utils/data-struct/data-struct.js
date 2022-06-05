@@ -72,8 +72,10 @@ const decodeDataStruct = (dataStructBuffer) => {
             var DataStructMessage = root.lookupType("datastruct.DataStruct");
 
             var message = DataStructMessage.decode(dataStructBuffer);
-            console.log('Received Message:', message)
-            var object = DataStructMessage.toObject(message);
+            var object = DataStructMessage.toObject(message, {
+                longs: String,
+                enums: String,
+            });
 
             resolve(object)
         });
