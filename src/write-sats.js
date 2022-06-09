@@ -64,7 +64,6 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
             // The current status of the stream.
         });
         call.on('end', function () {
-            console.error('SendPaymentV2 failed. Maybe fragment too big.')
             reject()
         });
     })
@@ -92,12 +91,14 @@ const sendFragmentsSync = async (dataStructs, totalSum, totalCost) => {
     let sum = totalSum
     let prom = new Promise(async function (resolve, reject) {
         let buf = await encodeDataStruct(dataStruct)
-        let cost = await sendDataToAddress(getDestinationAddress(), buf)
+        let cost = await sendDataToAddress(getDestinationAddress(), buf).catch(() => {
+            console.log('Fragment too big, SendPaymentV2 failed')
+            reject()
+        })
         totalCost += cost
         sum += dataStruct.payload.length
         console.log("Fragment sent for", cost, "sat(s) |",
             sum, '/', dataStruct.fragment.totalSize, 'B');
-        await sleep(1)
         resolve(0)
     })
     await Promise.all([prom])
