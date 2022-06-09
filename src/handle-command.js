@@ -50,7 +50,8 @@ handlers['speak'] = (args) => {
         console.log('Specify data')
         return
     }
-    const dataStructs = dataToDataStructArray(Buffer.from(args[1], 'utf-8'))
+    args.shift()
+    const dataStructs = dataToDataStructArray(Buffer.from(args.join(" "), 'utf-8'))
 
     dataStructs.forEach(
         (dataStruct) => {

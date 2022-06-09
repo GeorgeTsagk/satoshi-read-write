@@ -17,5 +17,5 @@ Run `npm start`.
 ## Commands
 
 - `set <address>`: Sets the destination address to transmit data to
-- `speak <string>`: Sends the string to the destination (string with **no spaces**)
+- `speak <string>`: Sends the given text to the destination.
 - `send <filepath>`: Sends the contents of the file at given path.
