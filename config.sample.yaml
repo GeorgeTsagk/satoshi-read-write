@@ -11,5 +11,4 @@ data_struct:
   #           big amounts of sats. Experiment at your own risk.
   max_data_size: 5242880 # Maximum allowed size for data to be transmitted.
   tlv_key: 293345191 # replace with desired TLV key to insert DataStruct structure into
-  max_fragment_size: 1024 # replace with desired maximum size per fragment
-  min_fragment_size: 512 # replace with desired minimum size per fragment
+  fragment_size: 1024 # replace with desired maximum size per fragment
