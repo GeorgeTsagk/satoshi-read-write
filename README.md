@@ -12,7 +12,7 @@ Configure the `tlv_key` for `data_sig` and `data_struct`, this needs to be a `ui
 
 Note that receiver must also run this application and have **the same keys configured** in order to normally receive data.
 
-
+Run `npm start`.
 
 ## Commands
 
