@@ -16,7 +16,7 @@ const dataToDataStructArray = (dataBuffer) => {
     }
     const totalSize = dataBuffer.length
     const fragmentationId = Math.floor(Math.random() * Math.pow(10, 9));
-    const fragmentSize = config.data_struct.max_fragment_bytes
+    const fragmentSize = config.data_struct.fragment_size
 
     let fragmentCount = Math.floor(dataBuffer.length / fragmentSize)
     if (dataBuffer.length % fragmentSize !== 0) {
