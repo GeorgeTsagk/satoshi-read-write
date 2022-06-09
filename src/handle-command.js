@@ -3,8 +3,8 @@ const {
     sendDataToAddress,
     setDestinationAddress,
     getDestinationAddress } = require('./write-sats')
-const { encodeDataSig, decodeDataSig } = require('./utils/data-sig/data-sig')
-const { encodeDataStruct, decodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
+const { encodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
+const { encodeAppFileMessage, encodeAppTextMessage } = require('./app-protocol/app-protocol')
 
 let handlers = {}
 
@@ -23,17 +23,21 @@ handlers['set'] = (args) => {
     setDestinationAddress(args[1])
 }
 
-handlers['send'] = (args) => {
+handlers['send'] = async (args) => {
     if (args.length < 2) {
         console.log('Specify filename')
         return
     }
     try {
         const buff = fs.readFileSync(args[1])
-        const dataStructs = dataToDataStructArray(buff)
+        const filename = args[1].replace(/^.*[\\\/]/, '')
+
+        const appMessageBuf = await encodeAppFileMessage(filename, buff)
+
+        const dataStructs = dataToDataStructArray(appMessageBuf)
 
         dataStructs.forEach(
-            (dataStruct) => {
+            (dataStruct) => {    
                 encodeDataStruct(dataStruct)
                     .then((buf) => {
                         sendDataToAddress(getDestinationAddress(), buf)
@@ -45,12 +49,16 @@ handlers['send'] = (args) => {
     }
 }
 
-handlers['speak'] = (args) => {
+handlers['speak'] = async (args) => {
     if (args.length < 2) {
         console.log('Specify data')
         return
     }
-    const dataStructs = dataToDataStructArray(Buffer.from(args[1], 'utf-8'))
+    args.shift()
+
+    const appMessageBuf = await encodeAppTextMessage(args.join(" "))
+
+    const dataStructs = dataToDataStructArray(appMessageBuf)
 
     dataStructs.forEach(
         (dataStruct) => {

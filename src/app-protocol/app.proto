@@ -1,0 +1,13 @@
+package app;
+syntax = "proto3";
+
+message AppMessage {
+    MESSAGE_TYPE type = 0;
+    bytes data = 1;
+    optional string filename = 2;
+}
+
+enum MESSAGE_TYPE {
+    TEXT = 0;
+    FILE = 1;
+}

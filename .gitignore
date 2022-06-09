@@ -1,3 +1,4 @@
 *.yaml
 !config.sample.yaml
 node_modules
+received_files

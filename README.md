@@ -12,10 +12,10 @@ Configure the `tlv_key` for `data_sig` and `data_struct`, this needs to be a `ui
 
 Note that receiver must also run this application and have **the same keys configured** in order to normally receive data.
 
-
+Run `npm start`.
 
 ## Commands
 
 - `set <address>`: Sets the destination address to transmit data to
-- `speak <string>`: Sends the string to the destination (string with **no spaces**)
+- `speak <string>`: Sends the given text to the destination.
 - `send <filepath>`: Sends the contents of the file at given path.
