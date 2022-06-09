@@ -2,7 +2,8 @@ const fs = require('fs')
 const {
     sendDataToAddress,
     setDestinationAddress,
-    getDestinationAddress } = require('./write-sats')
+    getDestinationAddress,
+    sendFragmentsSync } = require('./write-sats')
 const { encodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
 const { encodeAppFileMessage, encodeAppTextMessage } = require('./app-protocol/app-protocol')
 
@@ -33,17 +34,9 @@ handlers['send'] = async (args) => {
         const filename = args[1].replace(/^.*[\\\/]/, '')
 
         const appMessageBuf = await encodeAppFileMessage(filename, buff)
-
         const dataStructs = dataToDataStructArray(appMessageBuf)
 
-        dataStructs.forEach(
-            (dataStruct) => {    
-                encodeDataStruct(dataStruct)
-                    .then((buf) => {
-                        sendDataToAddress(getDestinationAddress(), buf)
-                    })
-            }
-        )
+        sendFragmentsSync(dataStructs, 0, 0)
     } catch (e) {
         console.log(e)
     }
