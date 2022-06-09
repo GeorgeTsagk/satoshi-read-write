@@ -7,6 +7,12 @@ var protobuf = require("protobufjs")
 const DATA_STRUCT_VERSION = 1
 
 const dataToDataStructArray = (dataBuffer) => {
+    if(dataBuffer.length > config.data_struct.max_data_size) {
+        console.error(`You are trying to transmit a file bigger than the configured max size.\n
+                        Transmitting data bigger than a few MB can consume big amounts of sats.\n
+                        If you want to execute this operation please change the maximum allowed size in the configuration file.\n`)
+        return
+    }
     const totalSize = dataBuffer.length
     const fragmentationId = Math.floor(Math.random() * Math.pow(10, 9));
     const fragmentSize = config.data_struct.max_fragment_bytes
