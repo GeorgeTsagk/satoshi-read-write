@@ -3,13 +3,8 @@ const {
     sendDataToAddress,
     setDestinationAddress,
     getDestinationAddress } = require('./write-sats')
-const { encodeDataSig, decodeDataSig } = require('./utils/data-sig/data-sig')
-const { encodeDataStruct, decodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
-
-const {
-    encodeAppFileMessage,
-    encodeAppTextMessage,
-    decodeAppMessage } = require('./app-protocol/app-protocol')
+const { encodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
+const { encodeAppFileMessage, encodeAppTextMessage } = require('./app-protocol/app-protocol')
 
 let handlers = {}
 
@@ -42,7 +37,7 @@ handlers['send'] = async (args) => {
         const dataStructs = dataToDataStructArray(appMessageBuf)
 
         dataStructs.forEach(
-            (dataStruct) => {
+            (dataStruct) => {    
                 encodeDataStruct(dataStruct)
                     .then((buf) => {
                         sendDataToAddress(getDestinationAddress(), buf)
