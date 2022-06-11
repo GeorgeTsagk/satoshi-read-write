@@ -3,9 +3,13 @@ const {
     sendDataToAddress,
     setDestinationAddress,
     getDestinationAddress,
-    sendFragmentsSync } = require('./write-sats')
+    sendFragmentsSync,
+    sendFragmentsAsync } = require('./write-sats')
 const { encodeDataStruct, dataToDataStructArray } = require('./utils/data-struct/data-struct')
 const { encodeAppFileMessage, encodeAppTextMessage } = require('./app-protocol/app-protocol')
+const config = require('./config/config-loader')
+
+const conf = config.getConfig()
 
 let handlers = {}
 
@@ -36,7 +40,15 @@ handlers['send'] = async (args) => {
         const appMessageBuf = await encodeAppFileMessage(filename, buff)
         const dataStructs = dataToDataStructArray(appMessageBuf)
 
-        sendFragmentsSync(dataStructs, 0, 0)
+        if (conf.data_struct.fragment_workers <= 0) {
+            sendFragmentsSync(dataStructs, 0, 0)
+        } else {
+            sendFragmentsAsync(
+                dataStructs,
+                conf.data_struct.fragment_workers
+            )
+        }
+
     } catch (e) {
         console.log(e)
     }

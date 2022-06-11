@@ -106,9 +106,59 @@ const sendFragmentsSync = async (dataStructs, totalSum, totalCost) => {
     sendFragmentsSync(dataStructs, sum, totalCost)
 }
 
+let startTime = 0
+
+const sendFragmentsAsync = async (dataStructs, workersCount) => {
+    if (dataStructs.length === 0) {
+        console.log('All fragments sent. Operation completed.')
+        console.log('Total amount burned:', totalCost, 'sats')
+        return
+    }
+    const progress = {
+        totalCost: 0,
+        totalSum: 0
+    }
+    startTime = ((new Date().getTime()) / 1000)
+    for (let i = 0; i < workersCount; i++)
+        fragmentAsyncWorker(
+            dataStructs,
+            progress
+        )
+}
+
+const fragmentAsyncWorker = async (dataStructs, progress) => {
+    if (dataStructs.length === 0) return
+    const dataStruct = dataStructs.shift()
+    let lastFlag = false
+    if (dataStructs.length === 0) lastFlag = true
+    let prom = new Promise(async function (resolve, reject) {
+        let buf = await encodeDataStruct(dataStruct)
+        let cost = await sendDataToAddress(getDestinationAddress(), buf).catch(() => {
+            console.log('Fragment too big, SendPaymentV2 failed')
+            reject()
+        })
+        progress.totalCost += cost
+        progress.totalSum += dataStruct.payload.length
+        console.log("Fragment sent for", cost, "sat(s) |",
+            progress.totalSum, '/', dataStruct.fragment.totalSize, 'B');
+        resolve(0)
+    })
+    await Promise.all([prom])
+    if (lastFlag) {
+        console.log('All fragments sent. Operation completed.')
+        console.log('Total amount burned:', progress.totalCost, 'sats')
+        let endTime = ((new Date().getTime()) / 1000)
+        console.log('Total Time:', endTime - startTime, 'seconds')
+        return
+    }
+    fragmentAsyncWorker(dataStructs, progress)
+}
+
+
 module.exports = {
     sendDataToAddress,
     setDestinationAddress,
     getDestinationAddress,
-    sendFragmentsSync
+    sendFragmentsSync,
+    sendFragmentsAsync
 }

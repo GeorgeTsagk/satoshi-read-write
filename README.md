@@ -6,6 +6,8 @@ This project mainly serves as a demonstration to the `DataSig` and `DataStruct` 
 
 # Usage
 
+The receiving node must have `--accept-keysend` enabled in order to accept the spontaneous payments carrying data.
+
 Rename `config.sample.yaml` to `config.yaml` and fill in the URL, macaroon path and TLS path for your LND.
 
 Configure the `tlv_key` for `data_sig` and `data_struct`, this needs to be a `uint64` number that is **odd** and **greater than 65536**.
