@@ -104,5 +104,6 @@ const decodeAppMessage = (buff) => {
 module.exports = {
     encodeAppTextMessage,
     encodeAppFileMessage,
+    encodeAppApiMessage,
     decodeAppMessage
 }
