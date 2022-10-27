@@ -2,7 +2,7 @@ const { router } = require('./lnd-rpc/router')
 const { randomBytes, createHash } = require('crypto')
 const { sleep } = require('./utils/generic')
 const configLoader = require('./config/config-loader')
-
+const { encodeAppFileMessage, encodeAppTextMessage, encodeAppApiMessage } = require('./app-protocol/app-protocol')
 const { encodeDataStruct } = require('./utils/data-struct/data-struct')
 const { getMyAddress } = require('./utils/generic')
 const { generateDataSig, encodeDataSig } = require('./utils/data-sig/data-sig')
