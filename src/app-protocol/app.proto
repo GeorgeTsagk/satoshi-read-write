@@ -10,4 +10,5 @@ message AppMessage {
 enum MESSAGE_TYPE {
     TEXT = 0;
     FILE = 1;
+    API = 2;
 }
