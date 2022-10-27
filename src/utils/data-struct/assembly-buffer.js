@@ -3,7 +3,7 @@ const { decodeDataStruct } = require('./data-struct')
 let buffers = {}
 
 let completedBufferCallback = (id) => {
-    dataReadyCallback(buffers[id].buffer)
+    dataReadyCallback(buffers[id])
     delete buffers[id]
 }
 
@@ -20,7 +20,7 @@ const checkIfBufferComplete = (assemblyBuffer) => {
     return false
 }
 
-const receiveDataStructBuffer = async (dataStructBuffer) => {
+const receiveDataStructBuffer = async (dataStructBuffer, senderAddress, amt) => {
     const dataStruct = await decodeDataStruct(dataStructBuffer)
     if(dataStruct.fragment == undefined) {
         dataReadyCallback(dataStruct.payload)
@@ -30,7 +30,9 @@ const receiveDataStructBuffer = async (dataStructBuffer) => {
         console.log('Creating new buffer with id', dataStruct.fragment.fragmentationId)
         buffers[dataStruct.fragment.fragmentationId] = {
             receivedBytes: 0,
-            buffer: Buffer.alloc(dataStruct.fragment.totalSize)
+            buffer: Buffer.alloc(dataStruct.fragment.totalSize),
+            amt: 0,
+            senderAddress: "",
         }
     }
 
@@ -41,6 +43,10 @@ const receiveDataStructBuffer = async (dataStructBuffer) => {
         )
         buffers[dataStruct.fragment.fragmentationId].receivedBytes++
     }
+
+    buffers[dataStruct.fragment.fragmentationId].amt += amt
+    buffers[dataStruct.fragment.fragmentationId].senderAddress = senderAddress
+
     console.log(
         'Fragment Received:',
         `${dataStruct.payload.length} B`,
@@ -49,7 +55,6 @@ const receiveDataStructBuffer = async (dataStructBuffer) => {
         '/',
         buffers[dataStruct.fragment.fragmentationId].buffer.length,
         'B'
-
     )
 
     if(checkIfBufferComplete(buffers[dataStruct.fragment.fragmentationId])) {

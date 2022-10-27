@@ -5,7 +5,7 @@ const { lightning } = require('../lnd-rpc/lightning')
 const { receiveDataStructBuffer } = require('./data-struct/assembly-buffer')
 const config = configLoader.getConfig()
 
-const defaultListenHandler = async (records) => {
+const defaultListenHandler = async (records, amt) => {
     let dataSigBuf
     let dataStructBuf
     for (const key in records) {
@@ -17,9 +17,9 @@ const defaultListenHandler = async (records) => {
         }
     }
 
-    const valid = await verifyDataSig(dataSigBuf, dataStructBuf)
-    if (!valid) return
-    receiveDataStructBuffer(dataStructBuf)
+    const senderAddress = await verifyDataSig(dataSigBuf, dataStructBuf)
+    if (senderAddress.length == 0) return
+    receiveDataStructBuffer(dataStructBuf, senderAddress, amt)
 
 }
 

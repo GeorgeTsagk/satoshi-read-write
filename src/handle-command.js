@@ -55,9 +55,6 @@ handlers['api'] = async (args) => {
     }
     args.shift()
 
-    const replyAddress = await getMyAddress()
-    args.unshift(replyAddress)
-
     sendAppMessageToAddress(getDestinationAddress(), 'API', args.join(" "), undefined)
 }
 
