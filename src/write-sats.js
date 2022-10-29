@@ -21,7 +21,7 @@ const getDestinationAddress = () => {
     return destinationAddress
 }
 
-const sendPayment = (address, dataBuffer, dataSigBuffer) => {
+const sendPayment = (address, dataBuffer, dataSigBuffer, amt) => {
     const preimage = randomBytes(32)
     const hash = createHash('sha256').update(preimage).digest()
 
@@ -40,7 +40,7 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
 
     let request = {
         dest: destBuff,
-        amt: 1,
+        amt: amt,
         payment_hash: hash,
         payment_request: "",
         fee_limit_sat: 10,
@@ -69,19 +69,19 @@ const sendPayment = (address, dataBuffer, dataSigBuffer) => {
     })
 }
 
-const sendDataToAddress = async (address, data) => {
+const sendDataToAddress = async (address, data, amt) => {
     myAddress = await getMyAddress()
     return new Promise(function (resolve, reject) {
         generateDataSig(1, data, address, myAddress)
             .then((res) => encodeDataSig(res))
             .then(async (sigBuf) => {
-                let cost = await sendPayment(address, data, sigBuf)
+                let cost = await sendPayment(address, data, sigBuf, amt)
                 resolve(cost)
             }).catch(() => reject())
     })
 }
 
-const sendFragmentsSync = async (dataStructs, totalSum, totalCost) => {
+const sendFragmentsSync = async (dataStructs, totalSum, totalCost, totalAmt) => {
     if (dataStructs.length === 0) {
         console.log('All fragments sent. Operation completed.')
         console.log('Total amount burned:', totalCost, 'sats')
@@ -89,9 +89,11 @@ const sendFragmentsSync = async (dataStructs, totalSum, totalCost) => {
     }
     const dataStruct = dataStructs[0]
     let sum = totalSum
+    let amt = Math.floor(totalAmt / dataStructs.length) + 1
+
     let prom = new Promise(async function (resolve, reject) {
         let buf = await encodeDataStruct(dataStruct)
-        let cost = await sendDataToAddress(getDestinationAddress(), buf).catch(() => {
+        let cost = await sendDataToAddress(getDestinationAddress(), buf, 1).catch(() => {
             console.log('Fragment too big, SendPaymentV2 failed')
             reject()
         })
@@ -103,12 +105,12 @@ const sendFragmentsSync = async (dataStructs, totalSum, totalCost) => {
     })
     await Promise.all([prom])
     dataStructs.shift()
-    sendFragmentsSync(dataStructs, sum, totalCost)
+    sendFragmentsSync(dataStructs, sum, totalCost, totalAmt - amt)
 }
 
 let startTime = 0
 
-const sendFragmentsAsync = async (dataStructs, workersCount) => {
+const sendFragmentsAsync = async (dataStructs, workersCount, totalAmt) => {
     if (dataStructs.length === 0) {
         console.log('All fragments sent. Operation completed.')
         console.log('Total amount burned:', totalCost, 'sats')
@@ -116,7 +118,8 @@ const sendFragmentsAsync = async (dataStructs, workersCount) => {
     }
     const progress = {
         totalCost: 0,
-        totalSum: 0
+        totalSum: 0,
+        amt: Math.floor(totalAmt / dataStructs.length) + 1,
     }
     startTime = ((new Date().getTime()) / 1000)
     for (let i = 0; i < workersCount; i++)
@@ -131,12 +134,14 @@ const fragmentAsyncWorker = async (dataStructs, progress) => {
     const dataStruct = dataStructs.shift()
     let lastFlag = false
     if (dataStructs.length === 0) lastFlag = true
+
     let prom = new Promise(async function (resolve, reject) {
         let buf = await encodeDataStruct(dataStruct)
-        let cost = await sendDataToAddress(getDestinationAddress(), buf).catch(() => {
+        let cost = await sendDataToAddress(getDestinationAddress(), buf, progress.amt).catch(() => {
             console.log('Fragment too big, SendPaymentV2 failed')
             reject()
         })
+
         progress.totalCost += cost
         progress.totalSum += dataStruct.payload.length
         console.log("Fragment sent for", cost, "sat(s) |",

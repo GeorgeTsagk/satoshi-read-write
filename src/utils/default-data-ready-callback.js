@@ -11,29 +11,31 @@ const handleReceivedText = (textBuf) => {
     console.log(textBuf.toString())
 }
 
-const handleReceivedApi = (textBuf) => {
-    const args = textBuf.toString().split(" ")
-    apiHandler(args)
+const handleReceivedApi = (text, senderAddress, amt) => {
+    const args = text.toString().split(" ")
+    apiHandler(args, senderAddress, amt)
 }
 
-const defaultDataReadyCallback = async (data) => {
+const defaultDataReadyCallback = async (msg) => {
     let appMsg
     try {
-        appMsg = await decodeAppMessage(data)
+        appMsg = await decodeAppMessage(msg.buffer)
     } catch (e) {
         console.log('Failed to decode app message')
     }
-    console.log(`-----------DATA-READY------------`)
+    console.log(`------------RECEIVED-------------`)
+    console.log(`Total amount: ${msg.amt} sat(s)`)
+    console.log('---------------------------------')
 
     switch (appMsg.type) {
         case 'TEXT':
-            handleReceivedText(appMsg.data)
+            handleReceivedText(appMsg.data, msg.senderAddress, msg.amt)
             break
         case 'FILE':
-            handleReceivedFile(appMsg.filename, appMsg.data)
+            handleReceivedFile(appMsg.filename, appMsg.data, msg.senderAddress, msg.amt)
             break
         case 'API':
-            handleReceivedApi(appMsg.data)
+            handleReceivedApi(appMsg.data, msg.senderAddress, msg.amt)
             break;
     }
 

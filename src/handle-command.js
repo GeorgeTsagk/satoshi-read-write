@@ -30,38 +30,53 @@ handlers['set'] = (args) => {
 }
 
 handlers['send'] = async (args) => {
+    let amt = Number(args.pop())
+    if(isNaN(amt)) {
+        console.log('Enter valid amount (sats) as last argument')
+        return
+    }
+
     if (args.length < 2) {
         console.log('Specify filename')
         return
     }
 
-    sendAppMessageToAddress(getDestinationAddress(), 'FILE', fs.readFileSync(args[1]), args[1].replace(/^.*[\\\/]/, ''))
+    sendAppMessageToAddress(getDestinationAddress(), 'FILE', fs.readFileSync(args[1]), args[1].replace(/^.*[\\\/]/, ''), amt)
 }
 
 handlers['speak'] = async (args) => {
+    let amt = Number(args.pop())
+    if(isNaN(amt)) {
+        console.log('Enter valid amount (sats) as last argument')
+        return
+    }
+
     if (args.length < 2) {
         console.log('Specify data')
         return
     }
     args.shift()
 
-    sendAppMessageToAddress(getDestinationAddress(), 'TEXT', args.join(" "), undefined)
+    sendAppMessageToAddress(getDestinationAddress(), 'TEXT', args.join(" "), undefined, amt)
 }
 
 handlers['api'] = async (args) => {
+    let amt = Number(args.pop())
+    if(isNaN(amt)) {
+        console.log('Enter valid amount (sats) as last argument')
+        return
+    }
+
     if (args.length < 2) {
         console.log('Specify reply address')
         return
     }
     args.shift()
 
-    const replyAddress = await getMyAddress()
-    args.unshift(replyAddress)
-
-    sendAppMessageToAddress(getDestinationAddress(), 'API', args.join(" "), undefined)
+    sendAppMessageToAddress(getDestinationAddress(), 'API', args.join(" "), undefined, amt)
 }
 
-const sendAppMessageToAddress = async (addr, type, data, filename) => {
+const sendAppMessageToAddress = async (addr, type, data, filename, totalAmt) => {
     setDestinationAddress(addr)
     let dataStructs
     switch(type){
@@ -92,11 +107,12 @@ const sendAppMessageToAddress = async (addr, type, data, filename) => {
     }
 
     if (conf.data_struct.fragment_workers <= 0) {
-        sendFragmentsSync(dataStructs, 0, 0)
+        sendFragmentsSync(dataStructs, 0, 0, totalAmt)
     } else {
         sendFragmentsAsync(
             dataStructs,
-            conf.data_struct.fragment_workers
+            conf.data_struct.fragment_workers,
+            totalAmt
         )
     }
 }

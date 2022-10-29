@@ -98,8 +98,8 @@ const verifyDataSig = (dataSigBuf, dataBuf) => {
         };
 
         signer.verifyMessage(request, function (err, response) {
-            if(err) reject(err)
-            if(response) resolve(response.valid)
+            if(err) reject("")
+            if(response) resolve(dataSig.senderPK)
         });
     })
 }

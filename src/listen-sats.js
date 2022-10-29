@@ -9,7 +9,8 @@ const handleReceivedRecords = (handler) => {
         // A response was received from the server.
         if (response.state === "SETTLED") {
             const records = response.htlcs[0].custom_records
-            handler(parseCustomRecords(records))
+            const amt = Number(response.amt_paid_sat)
+            handler(parseCustomRecords(records), amt)
         }
     });
     call.on('status', function (status) {
