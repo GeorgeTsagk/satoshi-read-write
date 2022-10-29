@@ -23,7 +23,9 @@ const defaultDataReadyCallback = async (msg) => {
     } catch (e) {
         console.log('Failed to decode app message')
     }
-    console.log(`-----------DATA-READY------------`)
+    console.log(`------------RECEIVED-------------`)
+    console.log(`Total amount: ${msg.amt} sat(s)`)
+    console.log('---------------------------------')
 
     switch (appMsg.type) {
         case 'TEXT':
